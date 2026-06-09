@@ -1,12 +1,18 @@
+import os
 from Empleado import Empleado
 from Empresa import Empresa
+from Archivo import Archivo
 
 
 class Main:
     """Clase principal que gestiona toda la interacción con el usuario."""
 
+    NOMBRE_ARCHIVO = os.path.join(os.path.dirname(__file__), "empleados.txt")
+
     def __init__(self):
         self.__empresa = Empresa()
+        self.__archivo = Archivo(Main.NOMBRE_ARCHIVO)
+        self.__cargarDatos()
 
     def ejecutar(self):
         opcion = 0
@@ -29,8 +35,9 @@ class Main:
             elif opcion == 3:
                 self.__mostrarSueldoPromedio()
             elif opcion == 4:
+                self.__guardarDatos()
                 print()
-                print("¡Hasta luego!")
+                print("Datos guardados. ¡Hasta luego!")
             else:
                 print("Opción no válida. Intente de nuevo.")
 
@@ -49,6 +56,8 @@ class Main:
 
         if self.__empresa.registrarEmpleado(empleado):
             print("Empleado '" + empleado.getNombre() + "' registrado exitosamente.")
+            self.__guardarDatos()
+            print("Datos guardados en archivo.")
         else:
             print("Error: Ya existe un empleado con DNI " + dni + ".")
 
@@ -72,6 +81,27 @@ class Main:
             print("--- Sueldo promedio ---")
             print("Cantidad de empleados: " + str(self.__empresa.obtenerCantidadEmpleados()))
             print("Sueldo promedio: $" + str(round(promedio, 2)))
+
+    # --- Persistencia ---
+
+    def __cargarDatos(self):
+        """Carga los empleados desde el archivo al iniciar."""
+        datos = self.__archivo.cargarLineas()
+        cantidadCargados = 0
+        for i in range(len(datos)):
+            nombre = datos[i][0]
+            dni = datos[i][1]
+            sueldo = datos[i][2]
+            empleado = Empleado(nombre, dni, sueldo)
+            if self.__empresa.registrarEmpleado(empleado):
+                cantidadCargados = cantidadCargados + 1
+        if cantidadCargados > 0:
+            print("Se cargaron " + str(cantidadCargados) + " empleados desde el archivo.")
+
+    def __guardarDatos(self):
+        """Guarda todos los empleados en el archivo."""
+        empleados = self.__empresa.getEmpleados()
+        self.__archivo.guardarEmpleados(empleados)
 
 
 # --- Punto de entrada ---

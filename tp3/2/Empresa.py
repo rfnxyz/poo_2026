@@ -40,6 +40,10 @@ class Empresa:
         """Retorna la cantidad de empleados registrados."""
         return len(self.__empleados)
 
+    def getEmpleados(self):
+        """Retorna la lista de empleados."""
+        return self.__empleados
+
     # --- Método privado ---
 
     def __existeDni(self, dni):
